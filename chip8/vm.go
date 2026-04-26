@@ -1,5 +1,10 @@
 package vm
 
+import (
+	"fmt"
+	"os"
+)
+
 type VM struct {
 	memory  [4096]uint8
 	display [64 * 32]bool
@@ -36,4 +41,19 @@ func New() *VM {
 	copy(vm.memory[0x050:], font[:])
 
 	return vm
+}
+
+func (vm *VM) LoadROM(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	if len(data) > 4096-0x200 {
+		return fmt.Errorf("ROM too big")
+	}
+
+	copy(vm.memory[0x200:], data)
+
+	return nil
 }
