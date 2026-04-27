@@ -4,11 +4,12 @@ const (
 	OpMisc  = 0x0 // Children: OpClear, OpReturn (not implemented)
 	OpClear = 0xE0
 	OpJump  = 0x1
+	OpSet   = 0x6
 )
 
 type instruction struct {
 	kind    uint8
-	n, x, y uint8
+	x, y, n uint8
 	nn      uint8
 	nnn     uint16
 }
@@ -48,5 +49,7 @@ func (vm *VM) execute(instruction *instruction) {
 		}
 	case OpJump:
 		vm.PC = instruction.nnn
+	case OpSet:
+		vm.V[instruction.x] = instruction.nn
 	}
 }
