@@ -3,6 +3,7 @@ package chip8
 const (
 	OpMisc  = 0x0 // Children: OpClear, OpReturn (not implemented)
 	OpClear = 0xE0
+	OpJump  = 0x1
 )
 
 type instruction struct {
@@ -45,5 +46,7 @@ func (vm *VM) execute(instruction *instruction) {
 				vm.display[i] = false
 			}
 		}
+	case OpJump:
+		vm.PC = instruction.nnn
 	}
 }
