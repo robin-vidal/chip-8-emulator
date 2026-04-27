@@ -5,6 +5,7 @@ const (
 	OpClear = 0xE0
 	OpJump  = 0x1
 	OpSet   = 0x6
+	OpAdd   = 0x7
 )
 
 type instruction struct {
@@ -51,5 +52,7 @@ func (vm *VM) execute(instruction *instruction) {
 		vm.PC = instruction.nnn
 	case OpSet:
 		vm.V[instruction.x] = instruction.nn
+	case OpAdd:
+		vm.V[instruction.x] += instruction.nn
 	}
 }
