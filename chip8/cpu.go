@@ -1,11 +1,12 @@
 package chip8
 
 const (
-	OpMisc  = 0x0 // Children: OpClear, OpReturn (not implemented)
-	OpClear = 0xE0
-	OpJump  = 0x1
-	OpSet   = 0x6
-	OpAdd   = 0x7
+	OpMisc     = 0x0 // Children: OpClear, OpReturn (not implemented)
+	OpClear    = 0xE0
+	OpJump     = 0x1
+	OpSet      = 0x6
+	OpAdd      = 0x7
+	OpSetIndex = 0xA
 )
 
 type instruction struct {
@@ -54,5 +55,7 @@ func (vm *VM) execute(instruction *instruction) {
 		vm.V[instruction.x] = instruction.nn
 	case OpAdd:
 		vm.V[instruction.x] += instruction.nn
+	case OpSetIndex:
+		vm.I = instruction.nnn
 	}
 }
