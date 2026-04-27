@@ -25,5 +25,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("ROM", *romPathFlag, "loaded!")
+	emulator.Step()
 }
