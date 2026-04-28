@@ -12,7 +12,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	for range 10 {
+	for range CyclesPerFrame {
 		g.VM.Step()
 	}
 
@@ -20,18 +20,18 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	for y := 0; y < 32; y++ {
-		line := y * 64
-		for x := 0; x < 64; x++ {
+	for y := 0; y < ScreenHeight; y++ {
+		line := y * ScreenWidth
+		for x := 0; x < ScreenWidth; x++ {
 			drawColor := color.Black
 			if g.VM.display[line+x] {
 				drawColor = color.White
 			}
-			vector.FillRect(screen, float32(x*10), float32(y*10), 10, 10, drawColor, false)
+			vector.FillRect(screen, float32(x*PixelScale), float32(y*PixelScale), PixelScale, PixelScale, drawColor, false)
 		}
 	}
 }
 
 func (g *Game) Layout(outsideW, outsideH int) (int, int) {
-	return 64 * 10, 32 * 10
+	return ScreenWidth * PixelScale, ScreenHeight * PixelScale
 }

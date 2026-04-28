@@ -28,7 +28,7 @@ func main() {
 	}
 
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowSize(64*10, 32*10)
+	ebiten.SetWindowSize(chip8.ScreenWidth*chip8.PixelScale, chip8.ScreenHeight*chip8.PixelScale)
 	ebiten.SetWindowTitle(*romPathFlag)
 	if err := ebiten.RunGame(&chip8.Game{VM: emulator}); err != nil {
 		log.Fatal(err)

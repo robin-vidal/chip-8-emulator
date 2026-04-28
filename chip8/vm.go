@@ -5,9 +5,15 @@ import (
 	"os"
 )
 
+const (
+	memorySize   = 4096
+	programStart = 0x200
+	fontStart    = 0x050
+)
+
 type VM struct {
-	memory  [4096]uint8
-	display [64 * 32]bool
+	memory  [memorySize]uint8
+	display [ScreenWidth * ScreenHeight]bool
 	pc      uint16
 	i       uint16
 	stack   []uint16
@@ -37,8 +43,8 @@ func New() *VM {
 	}
 
 	vm := new(VM)
-	vm.pc = 0x200
-	copy(vm.memory[0x050:], font[:])
+	vm.pc = programStart
+	copy(vm.memory[fontStart:], font[:])
 
 	return vm
 }
@@ -49,11 +55,11 @@ func (vm *VM) LoadROM(path string) error {
 		return err
 	}
 
-	if len(data) > 4096-0x200 {
+	if len(data) > memorySize-programStart {
 		return fmt.Errorf("ROM too big")
 	}
 
-	copy(vm.memory[0x200:], data)
+	copy(vm.memory[programStart:], data)
 
 	return nil
 }

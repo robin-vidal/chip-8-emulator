@@ -1,5 +1,7 @@
 package chip8
 
+const vf = 0xF // VF flag register
+
 const (
 	OpMisc     = 0x0 // Children: OpClear, OpReturn (not implemented)
 	OpClear    = 0xE0
@@ -59,17 +61,17 @@ func (vm *VM) execute(instr instruction) {
 	case OpSetIndex:
 		vm.i = instr.nnn
 	case OpDisplay:
-		x, y := vm.v[instr.x]%64, vm.v[instr.y]%32
-		vm.v[0xF] = 0
+		x, y := vm.v[instr.x]%ScreenWidth, vm.v[instr.y]%ScreenHeight
+		vm.v[vf] = 0
 
 		for line := range instr.n {
 			octet := vm.memory[vm.i+uint16(line)]
 			for n := range 8 {
 				shouldToggle := (octet>>(7-n))&1 == 1
 				if shouldToggle {
-					idx := (uint16(y)+uint16(line))*64 + uint16(x) + uint16(n)
+					idx := (uint16(y)+uint16(line))*ScreenWidth + uint16(x) + uint16(n)
 					if vm.display[idx] {
-						vm.v[0xF] = 1
+						vm.v[vf] = 1
 					}
 
 					vm.display[idx] = !vm.display[idx]
