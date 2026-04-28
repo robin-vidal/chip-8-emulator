@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
-	vm "github.com/robin-vidal/chip-8-emulator/chip8"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/robin-vidal/chip-8-emulator/chip8"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	emulator := vm.New()
+	emulator := chip8.New()
 
 	err := emulator.LoadROM(*romPathFlag)
 	if err != nil {
@@ -25,7 +27,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	for {
-		emulator.Step()
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowSize(64*10, 32*10)
+	ebiten.SetWindowTitle(*romPathFlag)
+	if err := ebiten.RunGame(&chip8.Game{VM: emulator}); err != nil {
+		log.Fatal(err)
 	}
 }
