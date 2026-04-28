@@ -65,8 +65,8 @@ func (vm *VM) execute(instruction *instruction) {
 		for line := range instruction.n {
 			octet := vm.memory[vm.I+uint16(line)]
 			for n := range 8 {
-				should_toggle := (octet>>(7-n))&1 == 1
-				if should_toggle {
+				shouldToggle := (octet>>(7-n))&1 == 1
+				if shouldToggle {
 					idx := (uint16(y)+uint16(line))*64 + uint16(x) + uint16(n)
 					if vm.display[idx] {
 						vm.V[0xF] = 1
