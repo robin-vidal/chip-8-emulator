@@ -49,6 +49,10 @@ func New() *VM {
 	return vm
 }
 
+func (vm *VM) Pixel(x, y int) bool {
+	return vm.display[y*ScreenWidth+x]
+}
+
 func (vm *VM) LoadROM(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
