@@ -29,8 +29,8 @@ func (vm *VM) fetch() uint16 {
 	return res
 }
 
-func decode(opcode uint16) *instruction {
-	instruction := new(instruction)
+func decode(opcode uint16) instruction {
+	instruction := instruction{}
 	instruction.kind = uint8(opcode >> 12)
 	instruction.x = uint8((opcode >> 8) & 0x000F)
 	instruction.y = uint8((opcode >> 4) & 0x000F)
@@ -41,7 +41,7 @@ func decode(opcode uint16) *instruction {
 	return instruction
 }
 
-func (vm *VM) execute(instruction *instruction) {
+func (vm *VM) execute(instruction instruction) {
 	switch instruction.kind {
 	case OpMisc:
 		switch instruction.nn {
