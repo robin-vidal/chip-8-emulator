@@ -34,13 +34,16 @@ func (g *game) Update() error {
 func (g *game) Draw(screen *ebiten.Image) {
 	for y := range chip8.ScreenHeight {
 		for x := range chip8.ScreenWidth {
-			drawColor := color.Color(color.Black)
-			if g.vm.Pixel(x, y) {
-				drawColor = color.White
-			}
-			vector.FillRect(screen, float32(x*pixelScale), float32(y*pixelScale), pixelScale, pixelScale, drawColor, false)
+			vector.FillRect(screen, float32(x*pixelScale), float32(y*pixelScale), pixelScale, pixelScale, pixelColor(g.vm.Pixel(x, y)), false)
 		}
 	}
+}
+
+func pixelColor(lit bool) color.Color {
+	if lit {
+		return color.White
+	}
+	return color.Black
 }
 
 func (g *game) Layout(_, _ int) (int, int) {

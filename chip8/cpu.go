@@ -77,11 +77,19 @@ func (vm *VM) executeDisplay(instr instruction) {
 	vm.v[vf] = 0
 
 	for line := range instr.n {
+		py := uint16(y) + uint16(line)
+		if py >= ScreenHeight {
+			break // clip vertically
+		}
 		octet := vm.memory[vm.i+uint16(line)]
 		for n := range 8 {
+			px := uint16(x) + uint16(n)
+			if px >= ScreenWidth {
+				break // clip horizontally
+			}
 			shouldToggle := (octet>>(7-n))&1 == 1
 			if shouldToggle {
-				idx := (uint16(y)+uint16(line))*ScreenWidth + uint16(x) + uint16(n)
+				idx := py*ScreenWidth + px
 				if vm.display[idx] {
 					vm.v[vf] = 1
 				}
