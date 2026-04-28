@@ -5,7 +5,7 @@ import "fmt"
 const vf = 0xF // VF flag register
 
 const (
-	OpMisc     = 0x0 // Children: OpClear, OpReturn (not implemented)
+	OpSys      = 0x0 // Children: OpClear, OpReturn (not implemented)
 	OpClear    = 0xE0
 	OpJump     = 0x1
 	OpSet      = 0x6
@@ -47,7 +47,7 @@ func decode(opcode uint16) instruction {
 
 func (vm *VM) execute(instr instruction) error {
 	switch instr.kind {
-	case OpMisc:
+	case OpSys:
 		switch instr.nn {
 		case OpClear:
 			vm.clearDisplay()
