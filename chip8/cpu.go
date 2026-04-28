@@ -19,8 +19,8 @@ type instruction struct {
 
 func (vm *VM) Step() {
 	opcode := vm.fetch()
-	instruction := decode(opcode)
-	vm.execute(instruction)
+	instr := decode(opcode)
+	vm.execute(instr)
 }
 
 func (vm *VM) fetch() uint16 {
@@ -30,39 +30,39 @@ func (vm *VM) fetch() uint16 {
 }
 
 func decode(opcode uint16) instruction {
-	instruction := instruction{}
-	instruction.kind = uint8(opcode >> 12)
-	instruction.x = uint8((opcode >> 8) & 0x000F)
-	instruction.y = uint8((opcode >> 4) & 0x000F)
-	instruction.n = uint8((opcode) & 0x000F)
-	instruction.nn = uint8((opcode) & 0x00FF)
-	instruction.nnn = uint16((opcode) & 0x0FFF)
+	instr := instruction{}
+	instr.kind = uint8(opcode >> 12)
+	instr.x = uint8((opcode >> 8) & 0x000F)
+	instr.y = uint8((opcode >> 4) & 0x000F)
+	instr.n = uint8((opcode) & 0x000F)
+	instr.nn = uint8((opcode) & 0x00FF)
+	instr.nnn = uint16((opcode) & 0x0FFF)
 
-	return instruction
+	return instr
 }
 
-func (vm *VM) execute(instruction instruction) {
-	switch instruction.kind {
+func (vm *VM) execute(instr instruction) {
+	switch instr.kind {
 	case OpMisc:
-		switch instruction.nn {
+		switch instr.nn {
 		case OpClear:
 			for i := range vm.display {
 				vm.display[i] = false
 			}
 		}
 	case OpJump:
-		vm.PC = instruction.nnn
+		vm.PC = instr.nnn
 	case OpSet:
-		vm.V[instruction.x] = instruction.nn
+		vm.V[instr.x] = instr.nn
 	case OpAdd:
-		vm.V[instruction.x] += instruction.nn
+		vm.V[instr.x] += instr.nn
 	case OpSetIndex:
-		vm.I = instruction.nnn
+		vm.I = instr.nnn
 	case OpDisplay:
-		x, y := vm.V[instruction.x]%64, vm.V[instruction.y]%32
+		x, y := vm.V[instr.x]%64, vm.V[instr.y]%32
 		vm.V[0xF] = 0
 
-		for line := range instruction.n {
+		for line := range instr.n {
 			octet := vm.memory[vm.I+uint16(line)]
 			for n := range 8 {
 				shouldToggle := (octet>>(7-n))&1 == 1
