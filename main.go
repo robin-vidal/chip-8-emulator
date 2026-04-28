@@ -54,11 +54,11 @@ func main() {
 }
 
 func run() error {
-	romPath := flag.String("romPath", "", "Path to the ROM you want to load")
+	romPath := flag.String("rom", "", "path to the CHIP-8 ROM file")
 	flag.Parse()
 
 	if *romPath == "" {
-		return fmt.Errorf("you must specify a ROM path via -romPath")
+		return fmt.Errorf("you must specify a ROM path via -rom")
 	}
 
 	f, err := os.Open(*romPath)
