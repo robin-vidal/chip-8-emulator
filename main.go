@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"image/color"
-	"log"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -24,7 +23,9 @@ type game struct {
 
 func (g *game) Update() error {
 	for range cyclesPerFrame {
-		g.vm.Step()
+		if err := g.vm.Step(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -46,32 +47,33 @@ func (g *game) Layout(_, _ int) (int, int) {
 }
 
 func main() {
-	var romPathFlag = flag.String("romPath", "", "Path to the ROM you want to load")
-	flag.Parse()
-
-	if *romPathFlag == "" {
-		fmt.Fprintln(os.Stderr, "you must specify a ROM")
-		os.Exit(1)
-	}
-
-	f, err := os.Open(*romPathFlag)
-	if err != nil {
+	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+}
+
+func run() error {
+	romPath := flag.String("romPath", "", "Path to the ROM you want to load")
+	flag.Parse()
+
+	if *romPath == "" {
+		return fmt.Errorf("you must specify a ROM path via -romPath")
+	}
+
+	f, err := os.Open(*romPath)
+	if err != nil {
+		return err
 	}
 	defer f.Close()
 
 	emulator := chip8.New()
-
 	if err := emulator.LoadROM(f); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		return err
 	}
 
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(chip8.ScreenWidth*pixelScale, chip8.ScreenHeight*pixelScale)
-	ebiten.SetWindowTitle(*romPathFlag)
-	if err := ebiten.RunGame(&game{vm: emulator}); err != nil {
-		log.Fatal(err)
-	}
+	ebiten.SetWindowTitle(*romPath)
+	return ebiten.RunGame(&game{vm: emulator})
 }

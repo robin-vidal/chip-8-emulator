@@ -1,5 +1,7 @@
 package chip8
 
+import "fmt"
+
 const vf = 0xF // VF flag register
 
 const (
@@ -19,10 +21,10 @@ type instruction struct {
 	nnn     uint16
 }
 
-func (vm *VM) Step() {
+func (vm *VM) Step() error {
 	opcode := vm.fetch()
 	instr := decode(opcode)
-	vm.execute(instr)
+	return vm.execute(instr)
 }
 
 func (vm *VM) fetch() uint16 {
@@ -43,7 +45,7 @@ func decode(opcode uint16) instruction {
 	return instr
 }
 
-func (vm *VM) execute(instr instruction) {
+func (vm *VM) execute(instr instruction) error {
 	switch instr.kind {
 	case OpMisc:
 		switch instr.nn {
@@ -60,7 +62,10 @@ func (vm *VM) execute(instr instruction) {
 		vm.i = instr.nnn
 	case OpDisplay:
 		vm.executeDisplay(instr)
+	default:
+		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
 	}
+	return nil
 }
 
 func (vm *VM) clearDisplay() {
