@@ -8,12 +8,12 @@ import (
 type VM struct {
 	memory  [4096]uint8
 	display [64 * 32]bool
-	PC      uint16
-	I       uint16
+	pc      uint16
+	i       uint16
 	stack   []uint16
 	delay   uint8
 	sound   uint8
-	V       [16]uint8
+	v       [16]uint8
 }
 
 func New() *VM {
@@ -37,7 +37,7 @@ func New() *VM {
 	}
 
 	vm := new(VM)
-	vm.PC = 0x200
+	vm.pc = 0x200
 	copy(vm.memory[0x050:], font[:])
 
 	return vm

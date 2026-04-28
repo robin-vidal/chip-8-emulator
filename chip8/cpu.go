@@ -24,8 +24,8 @@ func (vm *VM) Step() {
 }
 
 func (vm *VM) fetch() uint16 {
-	res := uint16(vm.memory[vm.PC])<<8 | uint16(vm.memory[vm.PC+1])
-	vm.PC += 2
+	res := uint16(vm.memory[vm.pc])<<8 | uint16(vm.memory[vm.pc+1])
+	vm.pc += 2
 	return res
 }
 
@@ -51,25 +51,25 @@ func (vm *VM) execute(instr instruction) {
 			}
 		}
 	case OpJump:
-		vm.PC = instr.nnn
+		vm.pc = instr.nnn
 	case OpSet:
-		vm.V[instr.x] = instr.nn
+		vm.v[instr.x] = instr.nn
 	case OpAdd:
-		vm.V[instr.x] += instr.nn
+		vm.v[instr.x] += instr.nn
 	case OpSetIndex:
-		vm.I = instr.nnn
+		vm.i = instr.nnn
 	case OpDisplay:
-		x, y := vm.V[instr.x]%64, vm.V[instr.y]%32
-		vm.V[0xF] = 0
+		x, y := vm.v[instr.x]%64, vm.v[instr.y]%32
+		vm.v[0xF] = 0
 
 		for line := range instr.n {
-			octet := vm.memory[vm.I+uint16(line)]
+			octet := vm.memory[vm.i+uint16(line)]
 			for n := range 8 {
 				shouldToggle := (octet>>(7-n))&1 == 1
 				if shouldToggle {
 					idx := (uint16(y)+uint16(line))*64 + uint16(x) + uint16(n)
 					if vm.display[idx] {
-						vm.V[0xF] = 1
+						vm.v[0xF] = 1
 					}
 
 					vm.display[idx] = !vm.display[idx]
