@@ -24,9 +24,9 @@ func (vm *VM) Step() {
 }
 
 func (vm *VM) fetch() uint16 {
-	res := uint16(vm.memory[vm.pc])<<8 | uint16(vm.memory[vm.pc+1])
+	opcode := uint16(vm.memory[vm.pc])<<8 | uint16(vm.memory[vm.pc+1])
 	vm.pc += 2
-	return res
+	return opcode
 }
 
 func decode(opcode uint16) instruction {
