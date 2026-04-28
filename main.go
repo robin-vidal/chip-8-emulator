@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"path/filepath"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -74,6 +75,6 @@ func run() error {
 
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(chip8.ScreenWidth*pixelScale, chip8.ScreenHeight*pixelScale)
-	ebiten.SetWindowTitle(*romPath)
+	ebiten.SetWindowTitle(filepath.Base(*romPath))
 	return ebiten.RunGame(&game{vm: emulator})
 }
