@@ -25,5 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	emulator.Step()
+	for {
+		emulator.Step()
+	}
 }

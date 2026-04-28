@@ -7,6 +7,7 @@ const (
 	OpSet      = 0x6
 	OpAdd      = 0x7
 	OpSetIndex = 0xA
+	OpDisplay  = 0xD
 )
 
 type instruction struct {
@@ -57,5 +58,23 @@ func (vm *VM) execute(instruction *instruction) {
 		vm.V[instruction.x] += instruction.nn
 	case OpSetIndex:
 		vm.I = instruction.nnn
+	case OpDisplay:
+		x, y := vm.V[instruction.x]%64, vm.V[instruction.y]%32
+		vm.V[0xF] = 0
+
+		for line := range instruction.n {
+			octet := vm.memory[vm.I+uint16(line)]
+			for n := range 8 {
+				should_toggle := (octet>>(7-n))&1 == 1
+				if should_toggle {
+					idx := (y+line)*64 + x + uint8(n)
+					if vm.display[idx] {
+						vm.V[0xF] = 1
+					}
+
+					vm.display[idx] = !vm.display[idx]
+				}
+			}
+		}
 	}
 }
