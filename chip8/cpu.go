@@ -48,9 +48,7 @@ func (vm *VM) execute(instr instruction) {
 	case OpMisc:
 		switch instr.nn {
 		case OpClear:
-			for i := range vm.display {
-				vm.display[i] = false
-			}
+			vm.clearDisplay()
 		}
 	case OpJump:
 		vm.pc = instr.nnn
@@ -61,21 +59,28 @@ func (vm *VM) execute(instr instruction) {
 	case OpSetIndex:
 		vm.i = instr.nnn
 	case OpDisplay:
-		x, y := vm.v[instr.x]%ScreenWidth, vm.v[instr.y]%ScreenHeight
-		vm.v[vf] = 0
+		vm.executeDisplay(instr)
+	}
+}
 
-		for line := range instr.n {
-			octet := vm.memory[vm.i+uint16(line)]
-			for n := range 8 {
-				shouldToggle := (octet>>(7-n))&1 == 1
-				if shouldToggle {
-					idx := (uint16(y)+uint16(line))*ScreenWidth + uint16(x) + uint16(n)
-					if vm.display[idx] {
-						vm.v[vf] = 1
-					}
+func (vm *VM) clearDisplay() {
+	vm.display = [ScreenWidth * ScreenHeight]bool{}
+}
 
-					vm.display[idx] = !vm.display[idx]
+func (vm *VM) executeDisplay(instr instruction) {
+	x, y := vm.v[instr.x]%ScreenWidth, vm.v[instr.y]%ScreenHeight
+	vm.v[vf] = 0
+
+	for line := range instr.n {
+		octet := vm.memory[vm.i+uint16(line)]
+		for n := range 8 {
+			shouldToggle := (octet>>(7-n))&1 == 1
+			if shouldToggle {
+				idx := (uint16(y)+uint16(line))*ScreenWidth + uint16(x) + uint16(n)
+				if vm.display[idx] {
+					vm.v[vf] = 1
 				}
+				vm.display[idx] = !vm.display[idx]
 			}
 		}
 	}

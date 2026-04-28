@@ -2,7 +2,7 @@ package chip8
 
 import (
 	"fmt"
-	"os"
+	"io"
 )
 
 const (
@@ -53,14 +53,15 @@ func (vm *VM) Pixel(x, y int) bool {
 	return vm.display[y*ScreenWidth+x]
 }
 
-func (vm *VM) LoadROM(path string) error {
-	data, err := os.ReadFile(path)
+func (vm *VM) LoadROM(r io.Reader) error {
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}
 
-	if len(data) > memorySize-programStart {
-		return fmt.Errorf("ROM too big")
+	maxSize := memorySize - programStart
+	if len(data) > maxSize {
+		return fmt.Errorf("rom size %d exceeds maximum %d bytes", len(data), maxSize)
 	}
 
 	copy(vm.memory[programStart:], data)

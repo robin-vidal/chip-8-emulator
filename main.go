@@ -54,10 +54,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	f, err := os.Open(*romPathFlag)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
 	emulator := chip8.New()
 
-	err := emulator.LoadROM(*romPathFlag)
-	if err != nil {
+	if err := emulator.LoadROM(f); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
