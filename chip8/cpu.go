@@ -5,13 +5,15 @@ import "fmt"
 const vf = 0xF // VF flag register
 
 const (
-	OpSys      = 0x0 // Children: OpClear, OpReturn (not implemented)
-	OpClear    = 0xE0
-	OpJump     = 0x1
-	OpSet      = 0x6
-	OpAdd      = 0x7
-	OpSetIndex = 0xA
-	OpDisplay  = 0xD
+	OpSys              = 0x0 // Children: OpClear, OpReturn (not implemented)
+	OpClear            = 0xE0
+	OpReturnSubroutine = 0xEE
+	OpJump             = 0x1
+	OpCallSubroutine   = 0x2
+	OpSet              = 0x6
+	OpAdd              = 0x7
+	OpSetIndex         = 0xA
+	OpDisplay          = 0xD
 )
 
 type instruction struct {
@@ -51,9 +53,16 @@ func (vm *VM) execute(instr instruction) error {
 		switch instr.nn {
 		case OpClear:
 			vm.clearDisplay()
+		case OpReturnSubroutine:
+			popped := vm.stack[len(vm.stack)-1]
+			vm.stack = vm.stack[:len(vm.stack)-1]
+			vm.jump(popped)
 		}
 	case OpJump:
-		vm.pc = instr.nnn
+		vm.jump(instr.nnn)
+	case OpCallSubroutine:
+		vm.stack = append(vm.stack, vm.pc)
+		vm.jump(instr.nnn)
 	case OpSet:
 		vm.v[instr.x] = instr.nn
 	case OpAdd:
@@ -66,6 +75,10 @@ func (vm *VM) execute(instr instruction) error {
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
 	}
 	return nil
+}
+
+func (vm *VM) jump(addr uint16) {
+	vm.pc = addr
 }
 
 func (vm *VM) clearDisplay() {
