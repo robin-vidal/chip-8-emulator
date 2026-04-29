@@ -10,8 +10,12 @@ const (
 	OpReturnSubroutine = 0xEE
 	OpJump             = 0x1
 	OpCallSubroutine   = 0x2
+	OpSkipEqualXNN     = 0x3
+	OpSkipNotEqualXNN  = 0x4
+	OpSkipEqualXY      = 0x5
 	OpSet              = 0x6
 	OpAdd              = 0x7
+	OpSkipNotEqualXY   = 0x9
 	OpSetIndex         = 0xA
 	OpDisplay          = 0xD
 )
@@ -63,10 +67,26 @@ func (vm *VM) execute(instr instruction) error {
 	case OpCallSubroutine:
 		vm.stack = append(vm.stack, vm.pc)
 		vm.jump(instr.nnn)
+	case OpSkipEqualXNN:
+		if vm.v[instr.x] == instr.nn {
+			vm.pc += 2
+		}
+	case OpSkipNotEqualXNN:
+		if vm.v[instr.x] != instr.nn {
+			vm.pc += 2
+		}
+	case OpSkipEqualXY:
+		if vm.v[instr.x] == vm.v[instr.y] {
+			vm.pc += 2
+		}
 	case OpSet:
 		vm.v[instr.x] = instr.nn
 	case OpAdd:
 		vm.v[instr.x] += instr.nn
+	case OpSkipNotEqualXY:
+		if vm.v[instr.x] != vm.v[instr.y] {
+			vm.pc += 2
+		}
 	case OpSetIndex:
 		vm.i = instr.nnn
 	case OpDisplay:
