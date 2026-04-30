@@ -43,13 +43,14 @@ const (
 	OpSkipKeyPressed    = 0x9E
 	OpSkipKeyNotPressed = 0xA1
 
-	OpMisc             = 0xF // Parent (NN vary)
-	OpSetXToDelayTimer = 0x07
-	OpSetDelayTimer    = 0x15
-	OpSetSoundTimer    = 0x18
-	OpAddToIndex       = 0x1E
-	OpGetKey           = 0x0A
-	OpFontCharacter    = 0x29
+	OpMisc              = 0xF // Parent (NN vary)
+	OpSetXToDelayTimer  = 0x07
+	OpSetDelayTimer     = 0x15
+	OpSetSoundTimer     = 0x18
+	OpAddToIndex        = 0x1E
+	OpGetKey            = 0x0A
+	OpFontCharacter     = 0x29
+	OpDecimalConversion = 0x33
 )
 
 type instruction struct {
@@ -208,6 +209,11 @@ func (vm *VM) execute(instr instruction) error {
 			}
 		case OpFontCharacter:
 			vm.i = fontStart + uint16(vm.v[instr.x])*fontCharacterSizeOct
+		case OpDecimalConversion:
+			num := vm.v[instr.x]
+			vm.memory[vm.i+2] = num % 10
+			vm.memory[vm.i+1] = (num / 10) % 10
+			vm.memory[vm.i] = (num / 100) % 10
 		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
