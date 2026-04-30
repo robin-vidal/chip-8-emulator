@@ -19,8 +19,14 @@ go build -o chip8 .
 ## Usage
 
 ```sh
-./chip8 -rom path/to/rom.ch8
+./chip8 -rom path/to/rom.ch8 [flags]
 ```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-rom` | — | Path to `.ch8` ROM (required) |
+| `-shift-in-place` | `false` | Shift `VX` directly, skip `VX = VY` copy (CHIP-48) |
+| `-jump-offset-vx` | `false` | `BNNN` jumps to `XNN + VX` instead of `NNN + V0` (CHIP-48) |
 
 Window title = ROM filename. Resizable.
 
@@ -35,15 +41,6 @@ CHIP-8   Keyboard
 7 8 9 E  A S D F
 A 0 B F  Z X C V
 ```
-
-## Quirks
-
-`VM` struct exposes flags for compatibility tuning:
-
-| Flag | Default | Behavior |
-|------|---------|----------|
-| `ShiftInPlace` | `false` | `false`: `VX = VY` then shift (original CHIP-8). `true`: shift `VX` direct (CHIP-48). |
-| `JumpOffsetVX` | `false` | `false`: jump `NNN + V0` (original CHIP-8). `true`: jump `XNN + VX` (CHIP-48). |
 
 ## Opcodes
 

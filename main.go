@@ -85,6 +85,8 @@ func main() {
 
 func run() error {
 	romPath := flag.String("rom", "", "path to the CHIP-8 ROM file")
+	shiftInPlace := flag.Bool("shift-in-place", false, "shift VX directly instead of copying VY first (CHIP-48)")
+	jumpOffsetVX := flag.Bool("jump-offset-vx", false, "BNNN jumps to XNN+VX instead of NNN+V0 (CHIP-48)")
 	flag.Parse()
 
 	if *romPath == "" {
@@ -98,6 +100,8 @@ func run() error {
 	defer f.Close()
 
 	emulator := chip8.New()
+	emulator.ShiftInPlace = *shiftInPlace
+	emulator.JumpOffsetVX = *jumpOffsetVX
 	if err := emulator.LoadROM(f); err != nil {
 		return err
 	}
