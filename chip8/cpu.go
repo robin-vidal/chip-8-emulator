@@ -164,11 +164,15 @@ func (vm *VM) execute(instr instruction) error {
 			vm.v[instr.x] = vm.v[instr.y] - vm.v[instr.x]
 			vm.v[vf] = 1 - borrow
 		case OpShiftRight:
-			vm.v[instr.x] = vm.v[instr.y]
+			if !vm.ShiftInPlace {
+				vm.v[instr.x] = vm.v[instr.y]
+			}
 			vm.v[vf] = vm.v[instr.x] & 1
 			vm.v[instr.x] >>= 1
 		case OpShiftLeft:
-			vm.v[instr.x] = vm.v[instr.y]
+			if !vm.ShiftInPlace {
+				vm.v[instr.x] = vm.v[instr.y]
+			}
 			vm.v[vf] = (vm.v[instr.x] >> 7) & 1
 			vm.v[instr.x] <<= 1
 		}

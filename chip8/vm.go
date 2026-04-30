@@ -22,6 +22,10 @@ type VM struct {
 	sound   uint8
 	v       [16]uint8
 	Keys    [16]bool
+
+	// ShiftInPlace true: shift VX direct (CHIP-48).
+	// false (default): VX = VY then shift (original CHIP-8).
+	ShiftInPlace bool
 }
 
 func New() *VM {
