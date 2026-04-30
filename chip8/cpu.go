@@ -1,6 +1,9 @@
 package chip8
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 const (
 	v0 = 0x0
@@ -19,6 +22,7 @@ const (
 	OpSkipNotEqualXNN = 0x4
 	OpSkipEqualXY     = 0x5
 	OpSkipNotEqualXY  = 0x9
+	OpRandom          = 0xC
 
 	OpSys              = 0x0 // Parent (NN vary)
 	OpClear            = 0xE0
@@ -100,6 +104,9 @@ func (vm *VM) execute(instr instruction) error {
 		if vm.v[instr.x] != vm.v[instr.y] {
 			vm.pc += 2
 		}
+	case OpRandom:
+		random := uint8(rand.Intn(256))
+		vm.v[instr.x] = instr.nn & random
 	case OpSys:
 		switch instr.nn {
 		case OpClear:
