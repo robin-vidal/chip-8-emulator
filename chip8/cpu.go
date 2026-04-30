@@ -49,6 +49,7 @@ const (
 	OpSetSoundTimer    = 0x18
 	OpAddToIndex       = 0x1E
 	OpGetKey           = 0x0A
+	OpFontCharacter    = 0x29
 )
 
 type instruction struct {
@@ -205,6 +206,8 @@ func (vm *VM) execute(instr instruction) error {
 			if !pressed {
 				vm.pc -= 2
 			}
+		case OpFontCharacter:
+			vm.i = fontStart + uint16(vm.v[instr.x])*fontCharacterSizeOct
 		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)

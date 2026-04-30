@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	memorySize   = 4096
-	programStart = 0x200
-	fontStart    = 0x50
+	memorySize           = 4096
+	programStart         = 0x200
+	fontStart            = 0x50
+	fontCharacterSizeOct = 5
 )
 
 type VM struct {
