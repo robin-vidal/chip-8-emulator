@@ -2,7 +2,7 @@
 
 CHIP-8 emulator in Go, [Ebiten](https://ebitengine.org/) for rendering.
 
-![Screenshot from IBM ROM](./assets/ibm-rom-screenshot.png)
+![Screen record from Pong ROM](./assets/pong-gameplay.gif)
 
 ## Requirements
 
