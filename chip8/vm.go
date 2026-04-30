@@ -26,6 +26,10 @@ type VM struct {
 	// ShiftInPlace true: shift VX direct (CHIP-48).
 	// false (default): VX = VY then shift (original CHIP-8).
 	ShiftInPlace bool
+
+	// JumpOffsetVX true: jump XNN + VX (CHIP-48).
+	// false (default): jump NNN + V0 (original CHIP-8).
+	JumpOffsetVX bool
 }
 
 func New() *VM {

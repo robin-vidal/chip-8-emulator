@@ -103,7 +103,11 @@ func (vm *VM) execute(instr instruction) error {
 	case OpJump:
 		vm.jump(instr.nnn)
 	case OpJumpOffset:
-		vm.jump(instr.nnn + uint16(vm.v[v0]))
+		if vm.JumpOffsetVX {
+			vm.jump(instr.nnn + uint16(vm.v[instr.x]))
+		} else {
+			vm.jump(instr.nnn + uint16(vm.v[v0]))
+		}
 	case OpCallSubroutine:
 		vm.stack = append(vm.stack, vm.pc)
 		vm.jump(instr.nnn)
