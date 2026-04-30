@@ -20,6 +20,7 @@ type VM struct {
 	delay   uint8
 	sound   uint8
 	v       [16]uint8
+	Keys    [16]bool
 }
 
 func New() *VM {

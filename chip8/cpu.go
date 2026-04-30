@@ -38,6 +38,10 @@ const (
 	OpSubstractYX       = 0x7
 	OpShiftRight        = 0x6
 	OpShiftLeft         = 0xE
+
+	OpSkipKey           = 0xE // Parent (NN vary)
+	OpSkipKeyPressed    = 0x9E
+	OpSkipKeyNotPressed = 0xA1
 )
 
 type instruction struct {
@@ -54,6 +58,10 @@ func (vm *VM) Step() error {
 }
 
 func (vm *VM) fetch() uint16 {
+	if vm.pc >= 4096 {
+		panic(fmt.Sprintf("PC out of bounds: 0x%X", vm.pc))
+	}
+
 	opcode := uint16(vm.memory[vm.pc])<<8 | uint16(vm.memory[vm.pc+1])
 	vm.pc += 2
 	return opcode
@@ -152,6 +160,17 @@ func (vm *VM) execute(instr instruction) error {
 			vm.v[instr.x] = vm.v[instr.y]
 			vm.v[vf] = (vm.v[instr.x] >> 7) & 1
 			vm.v[instr.x] <<= 1
+		}
+	case OpSkipKey:
+		switch instr.nn {
+		case OpSkipKeyPressed:
+			if vm.Keys[vm.v[instr.x]] {
+				vm.pc += 2
+			}
+		case OpSkipKeyNotPressed:
+			if !vm.Keys[vm.v[instr.x]] {
+				vm.pc += 2
+			}
 		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
