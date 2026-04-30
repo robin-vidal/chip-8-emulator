@@ -48,6 +48,7 @@ const (
 	OpSetDelayTimer    = 0x15
 	OpSetSoundTimer    = 0x18
 	OpAddToIndex       = 0x1E
+	OpGetKey           = 0x0A
 )
 
 type instruction struct {
@@ -190,6 +191,19 @@ func (vm *VM) execute(instr instruction) error {
 			vm.i += uint16(vm.v[instr.x])
 			if vm.i > 0x1000 {
 				vm.v[vf] = 1
+			}
+		case OpGetKey:
+			pressed := false
+			for idx, key := range vm.Keys {
+				if key {
+					vm.v[instr.x] = uint8(idx)
+					pressed = true
+					break
+				}
+			}
+
+			if !pressed {
+				vm.pc -= 2
 			}
 		}
 	default:
