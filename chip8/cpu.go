@@ -51,6 +51,8 @@ const (
 	OpGetKey            = 0x0A
 	OpFontCharacter     = 0x29
 	OpDecimalConversion = 0x33
+	OpStoreMemory       = 0x55
+	OpLoadMemory        = 0x65
 )
 
 type instruction struct {
@@ -214,6 +216,14 @@ func (vm *VM) execute(instr instruction) error {
 			vm.memory[vm.i+2] = num % 10
 			vm.memory[vm.i+1] = (num / 10) % 10
 			vm.memory[vm.i] = (num / 100) % 10
+		case OpStoreMemory:
+			for i := uint16(0); i <= uint16(instr.x); i++ {
+				vm.memory[vm.i+i] = vm.v[i]
+			}
+		case OpLoadMemory:
+			for i := uint16(0); i <= uint16(instr.x); i++ {
+				vm.v[i] = vm.memory[vm.i+i]
+			}
 		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
