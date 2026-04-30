@@ -43,10 +43,11 @@ const (
 	OpSkipKeyPressed    = 0x9E
 	OpSkipKeyNotPressed = 0xA1
 
-	OpTimers           = 0xF // Parent (NN vary)
+	OpMisc             = 0xF // Parent (NN vary)
 	OpSetXToDelayTimer = 0x07
 	OpSetDelayTimer    = 0x15
 	OpSetSoundTimer    = 0x18
+	OpAddToIndex       = 0x1E
 )
 
 type instruction struct {
@@ -177,7 +178,7 @@ func (vm *VM) execute(instr instruction) error {
 				vm.pc += 2
 			}
 		}
-	case OpTimers:
+	case OpMisc:
 		switch instr.nn {
 		case OpSetXToDelayTimer:
 			vm.v[instr.x] = vm.delay
@@ -185,6 +186,11 @@ func (vm *VM) execute(instr instruction) error {
 			vm.delay = vm.v[instr.x]
 		case OpSetSoundTimer:
 			vm.sound = vm.v[instr.x]
+		case OpAddToIndex:
+			vm.i += uint16(vm.v[instr.x])
+			if vm.i > 0x1000 {
+				vm.v[vf] = 1
+			}
 		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
