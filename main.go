@@ -18,11 +18,34 @@ const (
 	cyclesPerFrame = cpuHz / 60
 )
 
+var keyMapping = [16]ebiten.Key{
+	ebiten.KeyX,
+	ebiten.Key1,
+	ebiten.Key2,
+	ebiten.Key3,
+	ebiten.KeyQ,
+	ebiten.KeyW,
+	ebiten.KeyE,
+	ebiten.KeyA,
+	ebiten.KeyS,
+	ebiten.KeyD,
+	ebiten.KeyZ,
+	ebiten.KeyC,
+	ebiten.Key4,
+	ebiten.KeyR,
+	ebiten.KeyF,
+	ebiten.KeyV,
+} // Key-mapping
+
 type game struct {
 	vm *chip8.VM
 }
 
 func (g *game) Update() error {
+	for idx, key := range keyMapping {
+		g.vm.Keys[idx] = ebiten.IsKeyPressed(key)
+	}
+
 	for range cyclesPerFrame {
 		if err := g.vm.Step(); err != nil {
 			return err
