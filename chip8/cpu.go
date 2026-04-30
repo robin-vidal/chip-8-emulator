@@ -5,19 +5,31 @@ import "fmt"
 const vf = 0xF // VF flag register
 
 const (
-	OpSys              = 0x0 // Children: OpClear, OpReturn (not implemented)
+	OpSet             = 0x6
+	OpAdd             = 0x7
+	OpSetIndex        = 0xA
+	OpDisplay         = 0xD
+	OpJump            = 0x1
+	OpCallSubroutine  = 0x2
+	OpSkipEqualXNN    = 0x3
+	OpSkipNotEqualXNN = 0x4
+	OpSkipEqualXY     = 0x5
+	OpSkipNotEqualXY  = 0x9
+
+	OpSys              = 0x0 // Parent (NN vary)
 	OpClear            = 0xE0
 	OpReturnSubroutine = 0xEE
-	OpJump             = 0x1
-	OpCallSubroutine   = 0x2
-	OpSkipEqualXNN     = 0x3
-	OpSkipNotEqualXNN  = 0x4
-	OpSkipEqualXY      = 0x5
-	OpSet              = 0x6
-	OpAdd              = 0x7
-	OpSkipNotEqualXY   = 0x9
-	OpSetIndex         = 0xA
-	OpDisplay          = 0xD
+
+	OpLogicalArithmetic = 0x8 // Parent (N vary)
+	OpSetXY             = 0x0
+	OpBinaryOr          = 0x1
+	OpBinaryAnd         = 0x2
+	OpLogicalXor        = 0x3
+	OpAddXY             = 0x4
+	OpSubstractXY       = 0x5
+	OpSubstractYX       = 0x7
+	OpShiftRight        = 0x6
+	OpShiftLeft         = 0xE
 )
 
 type instruction struct {
@@ -53,15 +65,14 @@ func decode(opcode uint16) instruction {
 
 func (vm *VM) execute(instr instruction) error {
 	switch instr.kind {
-	case OpSys:
-		switch instr.nn {
-		case OpClear:
-			vm.clearDisplay()
-		case OpReturnSubroutine:
-			popped := vm.stack[len(vm.stack)-1]
-			vm.stack = vm.stack[:len(vm.stack)-1]
-			vm.jump(popped)
-		}
+	case OpSet:
+		vm.v[instr.x] = instr.nn
+	case OpAdd:
+		vm.v[instr.x] += instr.nn
+	case OpSetIndex:
+		vm.i = instr.nnn
+	case OpDisplay:
+		vm.executeDisplay(instr)
 	case OpJump:
 		vm.jump(instr.nnn)
 	case OpCallSubroutine:
@@ -79,18 +90,56 @@ func (vm *VM) execute(instr instruction) error {
 		if vm.v[instr.x] == vm.v[instr.y] {
 			vm.pc += 2
 		}
-	case OpSet:
-		vm.v[instr.x] = instr.nn
-	case OpAdd:
-		vm.v[instr.x] += instr.nn
 	case OpSkipNotEqualXY:
 		if vm.v[instr.x] != vm.v[instr.y] {
 			vm.pc += 2
 		}
-	case OpSetIndex:
-		vm.i = instr.nnn
-	case OpDisplay:
-		vm.executeDisplay(instr)
+	case OpSys:
+		switch instr.nn {
+		case OpClear:
+			vm.clearDisplay()
+		case OpReturnSubroutine:
+			popped := vm.stack[len(vm.stack)-1]
+			vm.stack = vm.stack[:len(vm.stack)-1]
+			vm.jump(popped)
+		}
+	case OpLogicalArithmetic:
+		switch instr.n {
+		case OpSetXY:
+			vm.v[instr.x] = vm.v[instr.y]
+		case OpBinaryOr:
+			vm.v[instr.x] |= vm.v[instr.y]
+		case OpBinaryAnd:
+			vm.v[instr.x] &= vm.v[instr.y]
+		case OpLogicalXor:
+			vm.v[instr.x] ^= vm.v[instr.y]
+		case OpAddXY:
+			res := uint16(vm.v[instr.x]) + uint16(vm.v[instr.y])
+			vm.v[vf] = uint8(res >> 8)
+			vm.v[instr.x] = uint8(res)
+		case OpSubstractXY:
+			borrow := uint8(0)
+			if vm.v[instr.x] < vm.v[instr.y] {
+				borrow = 1
+			}
+			vm.v[instr.x] -= vm.v[instr.y]
+			vm.v[vf] = 1 - borrow
+		case OpSubstractYX:
+			borrow := uint8(0)
+			if vm.v[instr.x] > vm.v[instr.y] {
+				borrow = 1
+			}
+			vm.v[instr.x] = vm.v[instr.y] - vm.v[instr.x]
+			vm.v[vf] = 1 - borrow
+		case OpShiftRight:
+			vm.v[instr.x] = vm.v[instr.y]
+			vm.v[vf] = vm.v[instr.x] & 1
+			vm.v[instr.x] >>= 1
+		case OpShiftLeft:
+			vm.v[instr.x] = vm.v[instr.y]
+			vm.v[vf] = (vm.v[instr.x] >> 7) & 1
+			vm.v[instr.x] <<= 1
+		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
 	}
