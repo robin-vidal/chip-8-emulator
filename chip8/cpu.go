@@ -42,6 +42,11 @@ const (
 	OpSkipKey           = 0xE // Parent (NN vary)
 	OpSkipKeyPressed    = 0x9E
 	OpSkipKeyNotPressed = 0xA1
+
+	OpTimers           = 0xF // Parent (NN vary)
+	OpSetXToDelayTimer = 0x07
+	OpSetDelayTimer    = 0x15
+	OpSetSoundTimer    = 0x18
 )
 
 type instruction struct {
@@ -172,6 +177,15 @@ func (vm *VM) execute(instr instruction) error {
 				vm.pc += 2
 			}
 		}
+	case OpTimers:
+		switch instr.nn {
+		case OpSetXToDelayTimer:
+			vm.v[instr.x] = vm.delay
+		case OpSetDelayTimer:
+			vm.delay = vm.v[instr.x]
+		case OpSetSoundTimer:
+			vm.sound = vm.v[instr.x]
+		}
 	default:
 		return fmt.Errorf("unknown opcode: 0x%X", instr.kind)
 	}
@@ -210,5 +224,15 @@ func (vm *VM) executeDisplay(instr instruction) {
 				vm.display[idx] = !vm.display[idx]
 			}
 		}
+	}
+}
+
+func (vm *VM) DecrementTimers() {
+	if vm.delay > 0 {
+		vm.delay--
+	}
+
+	if vm.sound > 0 {
+		vm.sound--
 	}
 }

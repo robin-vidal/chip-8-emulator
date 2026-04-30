@@ -51,6 +51,9 @@ func (g *game) Update() error {
 			return err
 		}
 	}
+
+	g.vm.DecrementTimers()
+
 	return nil
 }
 
