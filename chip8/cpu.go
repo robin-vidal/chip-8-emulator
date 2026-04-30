@@ -2,7 +2,10 @@ package chip8
 
 import "fmt"
 
-const vf = 0xF // VF flag register
+const (
+	v0 = 0x0
+	vf = 0xF // VF flag register
+)
 
 const (
 	OpSet             = 0x6
@@ -10,6 +13,7 @@ const (
 	OpSetIndex        = 0xA
 	OpDisplay         = 0xD
 	OpJump            = 0x1
+	OpJumpOffset      = 0xB
 	OpCallSubroutine  = 0x2
 	OpSkipEqualXNN    = 0x3
 	OpSkipNotEqualXNN = 0x4
@@ -75,6 +79,8 @@ func (vm *VM) execute(instr instruction) error {
 		vm.executeDisplay(instr)
 	case OpJump:
 		vm.jump(instr.nnn)
+	case OpJumpOffset:
+		vm.jump(instr.nnn + uint16(vm.v[v0]))
 	case OpCallSubroutine:
 		vm.stack = append(vm.stack, vm.pc)
 		vm.jump(instr.nnn)
